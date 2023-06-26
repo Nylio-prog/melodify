@@ -9,6 +9,8 @@ import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useUser } from "@/hooks/useUser";
 import useAuthModal from "@/hooks/useAuthModal";
 
+export const revalidate = 0;
+
 interface LikeButtonProps {
   songId: string;
 };
