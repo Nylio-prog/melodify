@@ -46,7 +46,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
 
   const onPlayPrevious = () => {
     if (player.ids.length === 0) {
-      return;
+      return; 
     }
 
     const currentIndex = player.ids.findIndex((id) => id === player.activeId);
