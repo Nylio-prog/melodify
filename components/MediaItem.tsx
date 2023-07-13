@@ -32,7 +32,8 @@ const MediaItem: React.FC<MediaItemProps> = ({
       className="
         flex 
         items-center 
-        gap-x-3 
+        gap-x-2
+        sm:gap-x-3 
         cursor-pointer 
         hover:bg-neutral-800/50 
         w-full 
