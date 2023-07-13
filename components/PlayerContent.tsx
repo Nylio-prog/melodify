@@ -199,7 +199,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
               " 
             />
           </div>
-          <div className="flex flex-row items-center justify-center gap-2 font-extralight">
+          <div className="flex flex-row items-center justify-center gap-2 text-xs sm:text-sm">
             <span>{formatSecondsToMinSec(progress)}</span>
             <Slider 
               value={progress}
