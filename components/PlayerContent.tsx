@@ -1,7 +1,7 @@
 "use client";
 
-import useSound from "use-sound";
-import { useEffect, useState } from "react";
+import ReactHowler from 'react-howler';
+import { useEffect, useRef, useState } from "react";
 import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
@@ -12,6 +12,7 @@ import usePlayer from "@/hooks/usePlayer";
 import LikeButton from "./LikeButton";
 import MediaItem from "./MediaItem";
 import Slider from "./Slider";
+import { formatSecondsToMinSec } from '@/libs/helpers';
 
 interface PlayerContentProps {
   song: Song;
@@ -23,8 +24,10 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   songUrl
 }) => {
   const player = usePlayer();
-  const [volume, setVolume] = useState(1);
+  const howlerRef = useRef<ReactHowler>(null);
+  const [volume, setVolume] = useState(0.5);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   const Icon = isPlaying ? BsPauseFill : BsPlayFill;
   const VolumeIcon = volume === 0 ? HiSpeakerXMark : HiSpeakerWave;
@@ -59,132 +62,157 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     player.setId(previousSong);
   }
 
-  const [play, { pause, sound }] = useSound(
-    songUrl,
-    { 
-      volume: volume,
-      onplay: () => setIsPlaying(true),
-      onend: () => {
-        setIsPlaying(false);
-        onPlayNext();
-      },
-      onpause: () => setIsPlaying(false),
-      format: ['mp3']
-    }
-  );
-
-  useEffect(() => {
-    sound?.play();
-    
-    return () => {
-      sound?.unload();
-    }
-  }, [sound]);
-
   const handlePlay = () => {
     if (!isPlaying) {
-      play();
+      setIsPlaying(true);
     } else {
-      pause();
+      setIsPlaying(false);
     }
   }
 
   const toggleMute = () => {
     if (volume === 0) {
-      setVolume(1);
+      setVolume(0.5);
     } else {
       setVolume(0);
     }
   }
 
+  const updateProgress = (value?: number) => {
+    if (howlerRef.current) {
+      if(typeof value === "undefined") {
+        var seek = howlerRef.current.seek();
+      } else {
+        var seek = howlerRef.current.seek(value);
+      }
+      setProgress(seek);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+        updateProgress();
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return ( 
-    <div className="grid grid-cols-2 md:grid-cols-3 h-full">
-        <div className="flex w-full justify-start">
+    <div className="grid grid-cols-3 md:grid-cols-4 h-full">
+        <div className="flex w-full justify-start col-span-1">
           <div className="flex items-center gap-x-4">
             <MediaItem data={song} />
             <LikeButton songId={song.id} />
           </div>
         </div>
 
-        <div 
-          className="
-            flex 
-            md:hidden 
-            col-auto 
-            w-full 
-            justify-end 
-            items-center
-          "
-        >
+        {/* buttons and progress bar */}
+        <div className='flex flex-col col-start-2 col-end-4'>
           <div 
-            onClick={handlePlay} 
             className="
-              h-10
-              w-10
               flex 
-              items-center 
+              md:hidden 
+              col-auto 
+              w-full 
               justify-center 
-              rounded-full 
-              bg-white 
-              p-1 
-              cursor-pointer
+              items-center
             "
           >
-            <Icon size={30} className="text-black" />
+            <div 
+              onClick={handlePlay} 
+              className="
+                h-10
+                w-10
+                flex 
+                items-center 
+                justify-center 
+                rounded-full 
+                bg-white 
+                p-1 
+                cursor-pointer
+              "
+            >
+              <Icon size={30} className="text-black" />
+            </div>
           </div>
-        </div>
-
-        <div 
-          className="
-            hidden
-            h-full
-            md:flex 
-            justify-center 
-            items-center 
-            w-full 
-            max-w-[722px] 
-            gap-x-6
-          "
-        >
-          <AiFillStepBackward
-            onClick={onPlayPrevious}
-            size={30} 
-            className="
-              text-neutral-400 
-              cursor-pointer 
-              hover:text-white 
-              transition
-            "
-          />
+        
           <div 
-            onClick={handlePlay} 
             className="
-              flex 
+              hidden
+              h-full
+              md:flex 
+              justify-center 
               items-center 
-              justify-center
-              h-10
-              w-10 
-              rounded-full 
-              bg-white 
-              p-1 
-              cursor-pointer
+              w-full 
+              max-w-[722px] 
+              gap-x-6
             "
           >
-            <Icon size={30} className="text-black" />
+            <AiFillStepBackward
+              onClick={onPlayPrevious}
+              size={30} 
+              className="
+                text-neutral-400 
+                cursor-pointer 
+                hover:text-white 
+                transition
+              "
+            />
+            <div 
+              onClick={handlePlay} 
+              className="
+                flex 
+                items-center 
+                justify-center
+                h-10
+                w-10 
+                rounded-full 
+                bg-white 
+                p-1 
+                cursor-pointer
+              "
+            >
+              <Icon size={30} className="text-black" />
+              <ReactHowler
+                src= {songUrl}
+                html5 = {true}
+                playing = {isPlaying}
+                volume = {volume}
+                onEnd = {() => {
+                  onPlayNext();
+                }}
+                format = {['mp3']}
+                ref={howlerRef}
+              />
+
+            </div>
+            <AiFillStepForward
+              onClick={onPlayNext}
+              size={30} 
+              className="
+                text-neutral-400 
+                cursor-pointer 
+                hover:text-white 
+                transition
+              " 
+            />
           </div>
-          <AiFillStepForward
-            onClick={onPlayNext}
-            size={30} 
-            className="
-              text-neutral-400 
-              cursor-pointer 
-              hover:text-white 
-              transition
-            " 
-          />
+          <div className="flex flex-row items-center justify-center gap-2 font-extralight">
+            <span>{formatSecondsToMinSec(progress)}</span>
+            <Slider 
+              value={progress}
+              onChange={(value) => {updateProgress(value)}}
+              max={howlerRef.current?.duration()}
+              step={1}
+              defaultValue={0}
+            />
+            <span>{formatSecondsToMinSec(howlerRef.current?.duration()!)}</span>
+          </div>
         </div>
 
-        <div className="hidden md:flex w-full justify-end pr-2">
+        <div className="hidden md:flex w-full justify-end pr-2 col-start-3 md:col-start-4">
           <div className="flex items-center gap-x-2 w-[120px]">
             <VolumeIcon 
               onClick={toggleMute} 

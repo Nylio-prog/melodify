@@ -38,8 +38,18 @@ export const postData = async ({
   return res.json();
 };
 
-export const toDateTime = (secs: number) => {
+export const toDateTime = (seconds: number) => {
   var t = new Date('1970-01-01T00:30:00Z'); // Unix epoch start.
-  t.setSeconds(secs);
+  t.setSeconds(seconds);
   return t;
 };
+
+export const formatSecondsToMinSec = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+
+  return `${formattedMinutes}:${formattedSeconds}`;
+}
