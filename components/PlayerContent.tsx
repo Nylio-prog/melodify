@@ -100,31 +100,126 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   }, []);
 
   return ( 
-    <div className="grid grid-cols-3 md:grid-cols-4 h-full">
-        <div className="flex w-full justify-start col-span-1">
+    //Desktop player
+    <>
+        <ReactHowler
+          src= {songUrl}
+          html5 = {true}
+          playing = {isPlaying}
+          volume = {volume}
+          onEnd = {() => {
+            onPlayNext();
+          }}
+          format = {['mp3']}
+          ref={howlerRef}
+        />
+      <div className="hidden md:grid md:grid-cols-4 h-full">
+          <div className="flex w-full justify-start col-span-1">
+            <div className="flex items-center gap-x-4">
+              <MediaItem data={song} />
+              <LikeButton songId={song.id} />
+            </div>
+          </div>
+
+          {/* buttons and progress bar */}
+          <div className='flex flex-col col-start-2 col-end-4'>
+            <div 
+              className="
+                hidden
+                h-full
+                md:flex 
+                justify-center 
+                items-center 
+                w-full 
+                max-w-[722px] 
+                gap-x-6
+              "
+            >
+              <AiFillStepBackward
+                onClick={onPlayPrevious}
+                size={30} 
+                className="
+                  text-neutral-400 
+                  cursor-pointer 
+                  hover:text-white 
+                  transition
+                "
+              />
+              <div 
+                onClick={handlePlay} 
+                className="
+                  flex 
+                  items-center 
+                  justify-center
+                  h-10
+                  w-10 
+                  rounded-full 
+                  bg-white 
+                  p-1 
+                  cursor-pointer
+                "
+              >
+                <Icon size={30} className="text-black" />
+              </div>
+              <AiFillStepForward
+                onClick={onPlayNext}
+                size={30} 
+                className="
+                  text-neutral-400 
+                  cursor-pointer 
+                  hover:text-white 
+                  transition
+                " 
+              />
+            </div>
+            <div className="flex flex-row items-center justify-center gap-2 text-xs sm:text-sm">
+              <span>{formatSecondsToMinSec(progress)}</span>
+              <Slider 
+                value={progress}
+                onChange={(value) => {updateProgress(value)}}
+                max={howlerRef.current?.duration()}
+                step={1}
+                defaultValue={0}
+              />
+              <span>{formatSecondsToMinSec(howlerRef.current?.duration()!)}</span>
+            </div>
+          </div>
+
+          <div className="hidden md:flex w-full justify-end pr-2 col-start-3 md:col-start-4">
+            <div className="flex items-center gap-x-2 w-[120px]">
+              <VolumeIcon 
+                onClick={toggleMute} 
+                className="cursor-pointer" 
+                size={34} 
+              />
+              <Slider 
+                value={volume} 
+                onChange={(value) => setVolume(value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        
+      {/* Mobile player */}
+      <div className="flex flex-col md:hidden h-full">
+        <div className="flex w-full items-center">
           <div className="flex items-center gap-x-4">
             <MediaItem data={song} />
             <LikeButton songId={song.id} />
           </div>
-        </div>
-
-        {/* buttons and progress bar */}
-        <div className='flex flex-col col-start-2 col-end-4'>
           <div 
             className="
-              flex 
-              md:hidden 
-              col-auto 
+              flex  
               w-full 
-              justify-center 
-              items-center
+              justify-end
             "
           >
             <div 
               onClick={handlePlay} 
               className="
-                h-10
-                w-10
+                h-8
+                w-8
                 flex 
                 items-center 
                 justify-center 
@@ -134,99 +229,26 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
                 cursor-pointer
               "
             >
-              <Icon size={30} className="text-black" />
+              <Icon size={25} className="text-black" />
             </div>
-          </div>
-        
-          <div 
-            className="
-              hidden
-              h-full
-              md:flex 
-              justify-center 
-              items-center 
-              w-full 
-              max-w-[722px] 
-              gap-x-6
-            "
-          >
-            <AiFillStepBackward
-              onClick={onPlayPrevious}
-              size={30} 
-              className="
-                text-neutral-400 
-                cursor-pointer 
-                hover:text-white 
-                transition
-              "
-            />
-            <div 
-              onClick={handlePlay} 
-              className="
-                flex 
-                items-center 
-                justify-center
-                h-10
-                w-10 
-                rounded-full 
-                bg-white 
-                p-1 
-                cursor-pointer
-              "
-            >
-              <Icon size={30} className="text-black" />
-              <ReactHowler
-                src= {songUrl}
-                html5 = {true}
-                playing = {isPlaying}
-                volume = {volume}
-                onEnd = {() => {
-                  onPlayNext();
-                }}
-                format = {['mp3']}
-                ref={howlerRef}
-              />
-
-            </div>
-            <AiFillStepForward
-              onClick={onPlayNext}
-              size={30} 
-              className="
-                text-neutral-400 
-                cursor-pointer 
-                hover:text-white 
-                transition
-              " 
-            />
-          </div>
-          <div className="flex flex-row items-center justify-center gap-2 text-xs sm:text-sm">
-            <span>{formatSecondsToMinSec(progress)}</span>
-            <Slider 
-              value={progress}
-              onChange={(value) => {updateProgress(value)}}
-              max={howlerRef.current?.duration()}
-              step={1}
-              defaultValue={0}
-            />
-            <span>{formatSecondsToMinSec(howlerRef.current?.duration()!)}</span>
           </div>
         </div>
 
-        <div className="hidden md:flex w-full justify-end pr-2 col-start-3 md:col-start-4">
-          <div className="flex items-center gap-x-2 w-[120px]">
-            <VolumeIcon 
-              onClick={toggleMute} 
-              className="cursor-pointer" 
-              size={34} 
-            />
-            <Slider 
-              value={volume} 
-              onChange={(value) => setVolume(value)}
-            />
-          </div>
+      
+        {/* progress bar */}
+        <div className="flex flex-row items-center justify-center gap-2 text-xs sm:text-sm">
+          <span>{formatSecondsToMinSec(progress)}</span>
+          <Slider 
+            value={progress}
+            onChange={(value) => {updateProgress(value)}}
+            max={howlerRef.current?.duration()}
+            step={1}
+            defaultValue={0}
+          />
+          <span>{formatSecondsToMinSec(howlerRef.current?.duration()!)}</span>
         </div>
-
       </div>
+  </>
    );
 }
  
