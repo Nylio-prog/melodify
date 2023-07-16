@@ -45,6 +45,10 @@ export const toDateTime = (seconds: number) => {
 };
 
 export const formatSecondsToMinSec = (seconds: number) => {
+  if (!seconds) { //If duration is not defined yet, we would get a NaN
+    return "00:00";
+  };
+
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
 
