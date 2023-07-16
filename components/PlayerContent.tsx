@@ -97,7 +97,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, []);  
 
   return ( 
     //Desktop player
@@ -234,8 +234,8 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
           </div>
         </div>
 
+        {/* Progress bar  */}
       
-        {/* progress bar */}
         <div className="flex flex-row items-center justify-center gap-2 text-xs sm:text-sm">
           <span>{formatSecondsToMinSec(progress)}</span>
           <Slider 

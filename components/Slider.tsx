@@ -58,6 +58,7 @@ const Slider: React.FC<SlideProps> = ({
           " 
         />
       </RadixSlider.Track>
+      <RadixSlider.Thumb className='block w-3 h-3 rounded-full bg-white'/>
     </RadixSlider.Root>
   );
 }
