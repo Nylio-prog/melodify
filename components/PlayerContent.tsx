@@ -79,7 +79,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   }
 
   const updateProgress = (value?: number) => {
-    if (howlerRef.current) {
+    if (howlerRef.current?.howler.state() === "loaded") {
       if(typeof value === "undefined") {
         var seek = howlerRef.current.seek();
       } else {
