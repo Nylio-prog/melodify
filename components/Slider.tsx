@@ -5,6 +5,7 @@ import * as RadixSlider from '@radix-ui/react-slider';
 interface SlideProps {
   value?: number;
   onChange?: (value: number) => void;
+  onCommit?: () => void;
   max?: number;
   step?: number;
   defaultValue?: number;
@@ -13,13 +14,19 @@ interface SlideProps {
 const Slider: React.FC<SlideProps> = ({ 
   value = 0.5, 
   onChange,
+  onCommit,
   max = 1,
   step = 0.1,
   defaultValue = 0.5
 }) => {
+
   const handleChange = (newValue: number[]) => {
     onChange?.(newValue[0]);
   };
+
+  const handleCommit = () => {
+    onCommit?.();
+  }
 
   return ( 
     <RadixSlider.Root
@@ -36,6 +43,7 @@ const Slider: React.FC<SlideProps> = ({
       defaultValue={[defaultValue]}
       value={[value]}
       onValueChange={handleChange}
+      onValueCommit={handleCommit}
       max={max}
       step={step}
       aria-label="Volume"

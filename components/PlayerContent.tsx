@@ -13,6 +13,7 @@ import LikeButton from "./LikeButton";
 import MediaItem from "./MediaItem";
 import Slider from "./Slider";
 import { formatSecondsToMinSec } from '@/libs/helpers';
+import useVolume from '@/hooks/useVolume';
 
 interface PlayerContentProps {
   song: Song;
@@ -25,7 +26,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
 }) => {
   const player = usePlayer();
   const howlerRef = useRef<ReactHowler>(null);
-  const [volume, setVolume] = useState(0.5);
+  const { volume, setVolume } = useVolume();
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
 
@@ -79,7 +80,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   }
 
   const updateProgress = (value?: number) => {
-    if (howlerRef.current?.howler.state() === "loaded") {
+    if (howlerRef.current) {
       if(typeof value === "undefined") {
         var seek = howlerRef.current.seek();
       } else {
@@ -176,7 +177,11 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
               <span>{formatSecondsToMinSec(progress)}</span>
               <Slider 
                 value={progress}
-                onChange={(value) => {updateProgress(value)}}
+                onChange={(value) => {
+                  setIsPlaying(false);
+                  updateProgress(value);
+                }}
+                onCommit={() => {setIsPlaying(true)}}
                 max={howlerRef.current?.duration()}
                 step={1}
                 defaultValue={0}
